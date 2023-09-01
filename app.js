@@ -9,6 +9,11 @@ const helmet = require('helmet');
 // ルーターの読み込み
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const loginRouter = require('./routes/login');
+const logoutRouter = require('./routes/logout');
+const shedRouter = require('./routes/schedules');
+const availRouter = require('./routes/availabilities');
+const commentsRouter = require('./routes/comments');
 
 const app = express();
 app.use(helmet());
@@ -26,6 +31,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ルーター一覧
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/login', loginRouter);
+app.use('/logout', logoutRouter);
+app.use('/schedules', shedRouter);
+app.use('/availabilities', availRouter);
+app.use('/comments', commentsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
