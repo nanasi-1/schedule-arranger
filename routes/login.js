@@ -3,7 +3,7 @@ const router = express.Router();
 
 /* GET login listing. */
 router.get('/', function(req, res, next) {
-  res.send('ここはログインページ。');
+  res.render('login', {user: req.user});
 });
 
 module.exports = router;

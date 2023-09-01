@@ -1,0 +1,19 @@
+extends layout 
+block content
+    p ログインの仕様は現在考え中です。
+    <!-- ToDo ログインの仕様を考える -->
+    <!-- NOTE 参考サイト: https://qiita.com/tuneyukkie/items/b1bc2a26cfb7c480e56b -->
+    
+    a(href="/auth/github") GitHubでログイン
+    p 現在 #{user} でログイン中
+    hr(style="width: 500px; margin: 40px 0px")
+    form(action="/login/auth" method="post") 
+        p
+            label ユーザー名
+            input(type="text" name="username" placeholder="ユーザー名を入力...")
+        p
+            label パスワード 
+            input(type="text" name="password" placeholder="パスワードを入力...")
+        button(type="submit") ログイン
+    if user
+        p 現在 #{user.username} でログイン中
