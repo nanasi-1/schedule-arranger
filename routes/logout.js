@@ -3,6 +3,7 @@ const router = express.Router();
 
 /* GET logout listing. */
 router.get('/', function(req, res, next) {
+  req.logout();
   res.send('logout');
 });
 

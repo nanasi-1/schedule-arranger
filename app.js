@@ -37,12 +37,11 @@ app.use(session ({
   secret: 'mysecret',
   resave: false,
   saveUninitialized:false,
-  //cookie:{secure:true} 本番は必須
 }))
 
 //passport　初期設定
 app.use(passport.initialize());
-app.use(passport.session())
+app.use(passport.session());
 
 // ルーター一覧
 app.use('/', indexRouter);
@@ -52,6 +51,51 @@ app.use('/logout', logoutRouter);
 app.use('/schedules', shedRouter);
 app.use('/availabilities', availRouter);
 app.use('/comments', commentsRouter);
+
+// ユーザーデータ
+const USER_DATA = [
+  {username: 'alice', password: 'alice'},
+  {username: 'Taro', password: 'Taro123'},
+  {username: 'admin', password: 'apple'}
+];
+
+passport.use(new LocalStrategy(
+  (username, password, cb) => {
+    const user = USER_DATA.find(e => username === e.username);
+    if (user){
+      if (password === user.password) {
+        console.log('チェックをパス');
+        return cb(null, username);
+      } else {
+        console.log('パスワードのチェックに失敗');
+        return cb(null, false);
+      }
+    } else {
+      console.log('ユーザーネームのチェックに失敗');
+      return cb(null, false);
+    }
+  }
+));
+
+// ユーザーデータからユニークユーザー識別子を取り出す
+passport.serializeUser( (username, cb) => {
+  cb(null, username);
+});
+
+passport.deserializeUser( (username, cb) => {
+  return cb(null, username);
+})
+
+app.post('/login/auth',
+  passport.authenticate('local', {
+    failureRedirect: '/login/failure', // 認証失敗した場合の飛び先
+    failureFlash: true
+  }),
+  (req,res) => {
+    console.log('認証成功');
+    res.redirect('/login/success');
+  }
+)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
