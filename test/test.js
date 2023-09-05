@@ -10,14 +10,14 @@ describe('/login', () => {
         passportStub.login({ username: 'test_user'});
     })
 
-    test('ログインのためのフォームが含まれる', async () => {
+    test('ログイン状態の時ログアウトボタンが表示される', async () => {
         await request(app).get('/login')
 
             // 引数を二つ渡した場合はヘッダをテストする
             .expect('Content-Type', 'text/html; charset=utf-8')
 
             // 引数に正規表現を渡した場合はbodyにその文字列があるかをテストする
-            .expect(/<form/)
+            .expect(/ログアウト/)
 
             // 引数に数値を渡した場合はステータスコードをテストする
             .expect(200)
