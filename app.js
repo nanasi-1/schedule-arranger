@@ -64,7 +64,6 @@ passport.use(new LocalStrategy(
     const user = USER_DATA.find(e => username === e.username);
     if (user){
       if (password === user.password) {
-        console.log('チェックをパス');
         return cb(null, username);
       } else {
         console.log('パスワードのチェックに失敗');
@@ -89,7 +88,7 @@ passport.deserializeUser( (username, cb) => {
 app.post('/login/auth',
   passport.authenticate('local', {
     failureRedirect: '/login/failure', // 認証失敗した場合の飛び先
-    failureFlash: true
+    failureFlash: false
   }),
   (req,res) => {
     console.log('認証成功');
