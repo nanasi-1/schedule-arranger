@@ -31,10 +31,9 @@ label {
     margin-left: 20px;
 }
 
-button[type="submit"], a#logout {
+button[type="submit"], a.btn {
     display: inline-block;
     width: 200px;
-    height: 40px;
     color: white;
     background-color: #00B7FF;
     border-radius: 5px;
@@ -42,10 +41,11 @@ button[type="submit"], a#logout {
 
 button[type="submit"] {
     margin-left: 20px;
+    height: 40px;
     border: none;
 }
 
-a#logout{
+a.btn{
     text-align: center;
     box-sizing: border-box;
     padding: 9px;
@@ -55,4 +55,10 @@ a#logout{
 
 #schedules {
     margin-top: 20px;
+}
+
+table  tr > * {
+    padding: 20px;
+    margin: 5px;
+    border: solid 1px #00B7FF;
 }

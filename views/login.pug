@@ -4,7 +4,7 @@ block content
     a(href="/") トップページはこちら
     if user
         p 現在 #{user} でログイン中
-        a(href="/logout" id="logout") ログアウト 
+        a.btn(href="/logout") ログアウト 
     else 
         hr
         form(action="/login/auth" method="post") 

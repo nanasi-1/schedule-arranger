@@ -1,0 +1,17 @@
+extend layout 
+block content 
+    h3 #{schedule.scheduleName}
+    p 作成者: #{schedule.user.username}
+    p(style="white-space:pre;") #{schedule.memo}
+    h3 出欠表
+    table
+        tr
+            th 予定
+            each user in users
+                th #{user}
+        each candidate in candidates
+            tr
+                th #{candidate.candidateName}
+                each user in users
+                    td
+                        button 欠席

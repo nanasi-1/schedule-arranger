@@ -1,0 +1,18 @@
+extends layout 
+
+block content
+    h3 あなたが作った予定一覧
+    p ここから予定一覧を確認できます。
+    a.btn(href="/schedules/new") 予定を作る
+    hr(style="border:none")
+    table(cellspacing="5px") 
+        tr 
+            th 予定名
+            th 説明
+            th 更新日時
+        each schedule in schedules
+            tr
+                td
+                    a(href=`/schedules/${schedule.scheduleId}`) #{schedule.scheduleName}
+                td #{schedule.memo}
+                td #{schedule.updatedAt}

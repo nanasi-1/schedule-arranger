@@ -2,9 +2,10 @@ extends layout
 
 block content
     h1= title
-    p Welcome to #{title}
-    p 予定調整くんへようこそ！<br>
-        if user 
-            a(href="logout") #{user}からログアウト 
-        else
-            a(href="login") ログイン 
+    p #{title}へようこそ！<br>
+    if user 
+        a.btn(href="schedules") 予定一覧へ
+        <br>
+        a.btn(href="logout") #{user}からログアウト 
+    else
+        a(href="login") ログイン 
