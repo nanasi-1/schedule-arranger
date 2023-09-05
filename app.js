@@ -87,12 +87,12 @@ passport.deserializeUser( (username, cb) => {
 
 app.post('/login/auth',
   passport.authenticate('local', {
-    failureRedirect: '/login/failure', // 認証失敗した場合の飛び先
+    failureRedirect: '/login', // 認証失敗した場合の飛び先
     failureFlash: false
   }),
   (req,res) => {
     console.log('認証成功');
-    res.redirect('/login/success');
+    res.redirect('/');
   }
 )
 

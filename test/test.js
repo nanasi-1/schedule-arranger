@@ -32,7 +32,7 @@ describe('/login', () => {
 
     test('ログアウト時はリダイレクトされる', async() => {
         await request(app).get('/logout')
-            .expect('Location', '/')
+            .expect('Location', '/login')
             .expect(302)
     })
 

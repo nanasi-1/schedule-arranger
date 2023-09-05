@@ -10,6 +10,7 @@ a {
 hr {
     width: 500px;
     margin: 40px 0px;
+    border: solid 0.5px #00B7FF;
 }
 
 input {
@@ -24,8 +25,24 @@ label {
     margin-left: 20px;
 }
 
-button[type="submit"] {
-    padding: 8px 12px;
-    margin-left: 20px;
+button[type="submit"], a#logout {
+    display: inline-block;
     width: 200px;
+    height: 40px;
+    color: white;
+    background-color: #00B7FF;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    margin-left: 20px;
+    border: none;
+}
+
+a#logout{
+    text-align: center;
+    box-sizing: border-box;
+    padding: 9px;
+    text-decoration: none;
+    margin-top: 40px;
 }
