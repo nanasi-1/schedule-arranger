@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予定を作成 | 予定調整くん</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+    <form action="/schedules" method="post">
+        <div>
+            <h3>予定のタイトル</h3>
+            <input type="text" name="scheduleName">
+        </div>
+        <div>
+            <h3>説明</h3>
+            <textarea name="memo"></textarea>
+        </div>
+        <div>
+            <h3>候補日程</h3>
+            <p>※改行して複数入力してください</p>
+            <textarea name="candidates"></textarea>
+        </div>
+        <button type="submit" id="schedules">予定を作る</button>
+    </form>
+</body>
+</html>

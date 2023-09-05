@@ -8,6 +8,8 @@ const helmet = require('helmet');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient({ log: ['query'] })
 
 const app = express();
 
@@ -90,8 +92,17 @@ app.post('/login/auth',
     failureRedirect: '/login', // 認証失敗した場合の飛び先
     failureFlash: false
   }),
-  (req,res) => {
+  async (req,res) => {
     console.log('認証成功');
+
+    // データベースの処理
+    const data = {username: req.user, userId: req.user};
+    await prisma.user.upsert({
+      where: { userId: data.username },
+      create: data,
+      update: data
+    })
+
     res.redirect('/');
   }
 )

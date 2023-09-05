@@ -1,6 +1,7 @@
 body {
     padding: 50px;
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    line-height: 200%;
 }
 
 a {
@@ -13,9 +14,14 @@ hr {
     border: solid 0.5px #00B7FF;
 }
 
-input {
+input, textarea {
     margin: 10px;
     padding: 12px 15px;
+}
+
+textarea {
+    width: 300px;
+    height: 200px;
 }
 
 label {
@@ -45,4 +51,8 @@ a#logout{
     padding: 9px;
     text-decoration: none;
     margin-top: 40px;
+}
+
+#schedules {
+    margin-top: 20px;
 }
