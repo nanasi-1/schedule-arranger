@@ -7,7 +7,6 @@ $('.ava-toggle-btn').each((i, e) => {
     const button = $(e); // button = JQuery式オブジェクト、e = DOMElement
     button.on('click', () => {
         const scheduleId = button.data('schedule-id');
-        const userId = button.data('user-id');
         const candidateId = button.data('candidate-id');
         const availability = parseInt(button.data('availability'));
         const nextAvailability = (availability + 1) % 3;

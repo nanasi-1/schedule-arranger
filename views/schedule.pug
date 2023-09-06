@@ -2,7 +2,8 @@ extend layout
 
 block content 
     h3 #{schedule.scheduleName}
-    p 作成者: #{schedule.user.username}
+    p 作成者: 
+        a(href="/schedules") #{schedule.user.username}
     p(style="white-space:pre;") #{schedule.memo}
     h3 出欠表
     table
@@ -20,9 +21,13 @@ block content
                         if user.isSelf
                             button(
                                 data-schedule-id=schedule.scheduleId
-                                data-user-id=user.userId
                                 data-candidate-id=candidate.candidateId
                                 data-availability=availability
                             ).ava-toggle-btn #{availabilityLabels[availability]}
                         else 
                             p #{availabilityLabels[availability]}
+        tr
+            th コメント
+            each user in users
+                td
+                    p #{commentMap.get(user.userId)}

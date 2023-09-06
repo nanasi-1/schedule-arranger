@@ -12,6 +12,7 @@ router.get('/new', ensurer, function(req, res, next) {
 
 router.get('/', ensurer, async function (req,res) {
   /**
+   * 予定のデータ
    * @type {{
    *  scheduleId: uuidv4, 
    *  scheduleName: string,
@@ -151,12 +152,31 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
       });
     });
 
+    /**
+     * コメントが入った配列
+     * @type {{comment: string, scheduleId: uuidv4, userId: string}[]}
+     */
+    const comments = await prisma.comment.findMany({
+      where: {scheduleId: schedule.scheduleId}
+    })
+    /**
+     * コメントが入った連想配列
+     * key: ユーザID、value: コメント内容
+     * @type {Object.<string,string>}
+     */
+    const commentMap = new Map([['admin', '実験用コメント'], ['alice', 'テスト用コメント']]);
+    comments.forEach(c => {
+      commentMap.set(c.userId, c.comment);
+    });
+    // どうやらコメントは一人一つらしい
+
     res.render('schedule', {
       user: req.user,
       schedule: schedule,
       candidates: candidates,
       users: users,
-      availabilityMapMap: availabilityMapMap
+      availabilityMapMap: availabilityMapMap,
+      commentMap: commentMap
     });
 
   } else {
