@@ -20,3 +20,17 @@ $('.ava-toggle-btn').each((i, e) => {
         );
     });
 });
+
+const btn = $('#comment-btn');
+btn.on('click',() => {
+    const scheduleId = btn.data('schedule-id');
+    const comment = prompt('コメントを255文字以内で入力: ');
+    if (comment) {
+        $.post(`/schedules/${scheduleId}/comments`,
+            { comment: comment },
+            (data) => { // WebAPIのレスポンスが入る
+                $('#self-comment').text(data.comment);
+            }
+        );
+    }
+})

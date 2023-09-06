@@ -130,7 +130,7 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
     });
 
     availabilities.forEach(a => {
-      userMap.set(req.user, {
+      userMap.set(a.user.userId, {
         isSelf: req.user === a.user.userId, // 地震であるかどうかを示す真偽値
         userId: a.user.userId,
         username: a.user.username
@@ -164,7 +164,7 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
      * key: ユーザID、value: コメント内容
      * @type {Object.<string,string>}
      */
-    const commentMap = new Map([['admin', '実験用コメント'], ['alice', 'テスト用コメント']]);
+    const commentMap = new Map();
     comments.forEach(c => {
       commentMap.set(c.userId, c.comment);
     });
@@ -178,6 +178,15 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
       availabilityMapMap: availabilityMapMap,
       commentMap: commentMap
     });
+
+    console.log(userMap);
+    console.log(users);
+    console.log(schedule);
+    console.log(candidates);
+    console.log(availabilities);
+    console.log(availabilityMapMap);
+    console.log(commentMap);
+    console.log(comments);
 
   } else {
     const err = new Error('指定された予定は見つかりません');

@@ -52,7 +52,7 @@ app.use('/login', loginRouter);
 app.use('/logout', logoutRouter);
 app.use('/schedules', shedRouter);
 app.use('/schedules', availRouter);
-app.use('/comments', commentsRouter);
+app.use('/schedules', commentsRouter);
 
 // ユーザーデータ
 const USER_DATA = [
