@@ -12,7 +12,12 @@ block content
                 th #{user.username}
         each candidate in candidates
             tr
-                th #{candidate.candidateName}
+                td #{candidate.candidateName}
                 each user in users
+                    - const availability = availabilityMapMap.get(user.userId).get(candidate.candidateId)
+                    - const availabilityLabels = ['欠席', '？', '出席'];
                     td
-                        button 欠席
+                        if user.isSelf
+                            button #{availabilityLabels[availability]}
+                        else 
+                            p #{availabilityLabels[availability]}

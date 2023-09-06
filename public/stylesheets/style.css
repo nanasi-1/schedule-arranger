@@ -61,4 +61,5 @@ table  tr > * {
     padding: 20px;
     margin: 5px;
     border: solid 1px #00B7FF;
+    text-align: center;
 }

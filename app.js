@@ -51,7 +51,7 @@ app.use('/users', usersRouter);
 app.use('/login', loginRouter);
 app.use('/logout', logoutRouter);
 app.use('/schedules', shedRouter);
-app.use('/availabilities', availRouter);
+app.use('/schedules', availRouter);
 app.use('/comments', commentsRouter);
 
 // ユーザーデータ
