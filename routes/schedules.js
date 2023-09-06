@@ -31,7 +31,6 @@ router.post('/', ensurer , async function (req, res, next) {
   console.log(req.body);
   
   const scheduleId = uuidv4();
-  console.log(scheduleId);
   const updateAt = new Date();
   const schedule = await prisma.schedule.create({
     data: {
