@@ -113,7 +113,7 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
     availabilities.forEach(ava => {
       const map = availabilityMapMap.get(ava.user.userId) || new Map();
       map.set(ava.candidateId, ava.availability);
-      availabilityMapMap.set(a.user.userId, map)
+      availabilityMapMap.set(ava.user.userId, map)
     });
     
     /**

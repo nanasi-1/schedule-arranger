@@ -9,17 +9,17 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient({ log: [ 'query' ] });
 
 /* GET availabilities listing. */
-router.post('/:scheduleId/candidates/:candidateId', async function(req, res, next) {
+router.post('/:scheduleId/candidates/:candidateId', ensurer, async function(req, res, next) {
 //router.get('/:scheduleId/candidates/:candidateId/post', async function(req, res, next) {
   /**
    * データをまとめたオブジェクト
    * @type {{userId: string, candidateId: number, scheduleId: uuidv4, availability: number}}
    */
   const data = {
-    userId: req.user || 'admin',
+    userId: req.user,
     candidateId: parseInt(req.params.candidateId),
     scheduleId: req.params.scheduleId,
-    availability: req.body.availability || 0
+    availability: parseInt(req.body.availability)
   }
   await prisma.availability.upsert({
     where: {
@@ -44,7 +44,7 @@ router.get('/:scheduleId/candidates/:candidateId', async function (req,res) {
         scheduleId: req.params.scheduleId
       }
     })
-    res.json({status: 'OK', ava: ava[0]});
+    res.json({status: 'OK', ava: ava});
   } catch(err) {
     console.warn(err);
     res.json({status: 'ERROR', about: err});
