@@ -11052,9 +11052,36 @@ __webpack_require__.r(__webpack_exports__);
 
 
 console.log('予定調整くんへようこそ！');
-jquery__WEBPACK_IMPORTED_MODULE_0___default()('ava-toggle-btn').each(function (i, e) {
-  var button = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e);
-  console.log(e, button);
+jquery__WEBPACK_IMPORTED_MODULE_0___default()('.ava-toggle-btn').each(function (i, e) {
+  var button = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e); // button = JQuery式オブジェクト、e = DOMElement
+  button.on('click', function () {
+    var scheduleId = button.data('schedule-id');
+    var candidateId = button.data('candidate-id');
+    var availability = parseInt(button.data('availability'));
+    var nextAvailability = (availability + 1) % 3;
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().post("/schedules/".concat(scheduleId, "/candidates/").concat(candidateId), {
+      availability: nextAvailability
+    }, function (data) {
+      button.data('availability', data.availability);
+      var availabilityLabels = ['欠席', '？', '出席'];
+      button.text(availabilityLabels[data.availability]);
+      console.log(data);
+    });
+  });
+});
+var btn = jquery__WEBPACK_IMPORTED_MODULE_0___default()('#comment-btn');
+btn.on('click', function () {
+  var scheduleId = btn.data('schedule-id');
+  var comment = prompt('コメントを255文字以内で入力: ');
+  if (comment) {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().post("/schedules/".concat(scheduleId, "/comments"), {
+      comment: comment
+    }, function (data) {
+      // WebAPIのレスポンスが入る
+      console.log(data);
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('#self-comment').text(data.comment);
+    });
+  }
 });
 })();
 
