@@ -16,7 +16,7 @@ html
           ul.navbar-nav.ms-auto 
             if user 
               li.nav-item 
-                a(href="/logout").nav-link #{user.username} からログアウト 
+                a(href="/logout").nav-link #{user} からログアウト 
             else 
               li.nav-item 
                 a(href="/login").nav-link ログイン

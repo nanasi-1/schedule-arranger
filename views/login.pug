@@ -9,10 +9,10 @@ block content
         hr
         form(action="/login/auth" method="post") 
             p
-                label ユーザー名
+                label.form-label(style="margin-right: 20px") ユーザー名
                 input(type="text" name="username" placeholder="ユーザー名を入力..." required)
             p
-                label パスワード 
+                label.form-label(style="margin-right: 20px") パスワード 
                 input(type="text" name="password" placeholder="パスワードを入力..." required)
-            button(type="submit") ログイン
+            button.btn.btn-primary(type="submit") ログイン
         hr

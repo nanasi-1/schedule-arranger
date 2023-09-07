@@ -1,27 +1,19 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>予定を作成 | 予定調整くん</title>
-    <link rel="stylesheet" href="/stylesheets/style.css">
-</head>
-<body>
-    <form action="/schedules" method="post">
-        <div>
-            <h3>予定のタイトル</h3>
-            <input type="text" name="scheduleName">
+extends layout
+
+block content
+    <form action="/schedules" method="post" class="my-3">
+        <div class="mb-3">
+            <label class="form-label">予定のタイトル</label>
+            <input type="text" name="scheduleName" class="form-control">
         </div>
-        <div>
-            <h3>説明</h3>
-            <textarea name="memo"></textarea>
+        <div class="mb-3">
+            <label class="form-label">説明</label>
+            <textarea name="memo" class="form-control"></textarea>
         </div>
-        <div>
-            <h3>候補日程</h3>
-            <p>※改行して複数入力してください</p>
-            <textarea name="candidates"></textarea>
+        <div class="mb-3">
+            <label class="form-label">候補日程</label>
+            <p class="form-label">※改行して複数入力してください</p>
+            <textarea name="candidates" class="form-control"></textarea>
         </div>
-        <button type="submit" id="schedules">予定を作る</button>
+        <button type="submit" id="schedules" class="btn btn-primary">予定を作る</button>
     </form>
-</body>
-</html>

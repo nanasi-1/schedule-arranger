@@ -8,10 +8,10 @@ block content
     if !user
         hr
         p 出欠を編集するにはログインしてください
-        a.btn(href="/login") ログイン 
+        a.btn.btn-primary(href="/login") ログイン 
         hr
-    h3 出欠表
-    table
+    h3.mb-3 出欠表
+    table.table
         tr
             th 予定
             each user in users
@@ -28,7 +28,7 @@ block content
                                 data-schedule-id=schedule.scheduleId
                                 data-candidate-id=candidate.candidateId
                                 data-availability=availability
-                            ).ava-toggle-btn #{availabilityLabels[availability]}
+                            ).ava-toggle-btn.btn.btn-primary #{availabilityLabels[availability]}
                         else 
                             p #{availabilityLabels[availability]}
         tr
@@ -39,8 +39,8 @@ block content
                         p#self-comment #{commentMap.get(user.userId)}
                         button(
                             data-schedule-id=schedule.scheduleId
-                        )#comment-btn 編集
+                        )#comment-btn.btn.btn-primary 編集
                     else 
                         p #{commentMap.get(user.userId)}
     if schedule.user.userId === user
-        a(href=`/schedules/${schedule.scheduleId}/edit`).btn 編集 
+        a(href=`/schedules/${schedule.scheduleId}/edit`).btn.btn-primary 編集 

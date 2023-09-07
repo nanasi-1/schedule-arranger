@@ -4,25 +4,23 @@ block content
     p ここで予定を編集できます
     hr
     form(action=`/schedules/${schedule.scheduleId}/delete`, method="post") 
-        h3 予定の削除
+        h3.my-3 予定の削除
         p この変更は取り消しができません。
-        button(type="submit") 予定を削除する
+        button(type="submit").btn.btn-danger 予定を削除する
     hr
     form(action=`/schedules/${schedule.scheduleId}/update`, method="post") 
-        div
-            h3 予定名
-            input(type="text" name="scheduleName" value=schedule.scheduleName)
-        div
-            h3 詳細
-            textarea(name="memo") #{schedule.memo}
-        hr
-        div 
-            h3 候補日程
-            ul 
+        div.mb-4
+            h6.mb-3 予定名
+            input.form-control(type="text" name="scheduleName" value=schedule.scheduleName)
+        div.mb-4
+            h6.mb-3 詳細
+            textarea.form-control(name="memo") #{schedule.memo}
+        div.mb-4 
+            h6.mb-3 候補日程
+            ul.list-group.mb-2 
                 each candidate in candidates
-                    li #{candidate.candidateName}
-            h4 候補日程を追加（改行して複数入力してください）
-            textarea(name="candidates" style="height: 100px") 
-        hr
-        div 
-            button(type="submit") 更新
+                    li.list-group-item #{candidate.candidateName}
+            label.form-label 候補日程を追加（改行して複数入力してください）
+            textarea.form-control(name="candidates" style="height: 100px") 
+        div.mb-4 
+            button(type="submit").btn.btn-primary 更新

@@ -1,56 +1,43 @@
 .container {
     margin-top: 50px;
+    margin-bottom: 80px;
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-    line-height: 200%;
+    line-height: 250%;
 }
 
 a {
-    color: #00B7FF;
+    color: #0d6efd;
 }
 
 hr {
     width: 500px;
     margin: 40px 0px;
-    border: solid 0.5px #00B7FF;
-}
-
-input, textarea {
-    margin: 10px;
-    padding: 12px 15px;
+    border: solid 0.5px #0d6efd;
 }
 
 textarea {
-    width: 300px;
-    height: 200px;
+    height: 150px;
+    padding: 15px 20px!important;
 }
 
-label {
-    display: inline-block;
-    width: 100px;
-    height: 30px;
-    margin-left: 20px;
+input{
+    padding: 10px 20px!important;
 }
 
 button[type="submit"], a.btn {
     display: inline-block;
     width: 200px;
     color: white;
-    background-color: #00B7FF;
     border-radius: 5px;
 }
 
 button[type="submit"] {
-    margin-left: 20px;
-    height: 40px;
-    border: none;
+    height: 50px;
 }
 
 a.btn{
-    text-align: center;
-    box-sizing: border-box;
     padding: 9px;
-    text-decoration: none;
-    margin-top: 40px;
+    margin: 20px 0px;
 }
 
 #schedules {
@@ -58,8 +45,5 @@ a.btn{
 }
 
 table  tr > * {
-    padding: 20px;
-    margin: 5px;
-    border: solid 1px #00B7FF;
-    text-align: center;
+    padding: 20px 30px!important;
 }

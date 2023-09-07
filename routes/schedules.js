@@ -5,6 +5,14 @@ const { v4: uuidv4 } = require('uuid');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient({ log: ['query'] });
 
+// day.js
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Tokyo');
+
 /* GET schedules listing. */
 router.get('/new', ensurer, function (req, res, next) {
   res.render('new', { user: req.user });
@@ -34,6 +42,9 @@ router.get('/', async function (req, res) {
       orderBy: { updatedAt: 'desc' }
     });
   }
+  schedules.forEach((schedule) => {
+    schedule.formattedUpdatedAt = dayjs(schedule.updatedAt).tz().format('YYYY/MM/DD HH:mm');
+  });
   res.render('schedules', { schedules: schedules, user: req.user });
 })
 
