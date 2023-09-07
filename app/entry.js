@@ -1,6 +1,10 @@
 'use strict'
 
 import $ from "jquery";
+globalThis.jQuery = $;
+
+import 'bootstrap/dist/js/bootstrap.min.js';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 console.log('予定調整くんへようこそ！');
 $('.ava-toggle-btn').each((i, e) => {

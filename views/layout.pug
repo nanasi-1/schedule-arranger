@@ -1,8 +1,12 @@
 doctype html
 html
   head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    title 予定調整くん
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    link(rel='stylesheet' href='/stylesheets/bundle.css')
+    link(rel="stylesheet", href="/stylesheets/style.css")
   body
-    block content
+    div.container
+      block content
     script(src="/javascripts/bundle.js")
