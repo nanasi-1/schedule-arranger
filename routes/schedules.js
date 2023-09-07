@@ -10,6 +10,8 @@ router.get('/new', ensurer, function (req, res, next) {
   res.render('new', { user: req.user });
 });
 
+// ToDo サーバーが止まらないようにする
+
 router.get('/', async function (req, res) {
   /**
    * 予定のデータ
@@ -21,10 +23,17 @@ router.get('/', async function (req, res) {
    *  updatedAt: data
    * }}
    */
-  const schedules = await prisma.schedule.findMany({
-    where: { createdBy: req.user || '*' }, // NOTE 一応置き換えしやすいようにした
-    orderBy: { updatedAt: 'desc' }
-  });
+  let schedules;
+  if (req.user) {
+    schedules = await prisma.schedule.findMany({
+      where: { createdBy: req.user },
+      orderBy: { updatedAt: 'desc' }
+    });
+  } else {
+    schedules = await prisma.schedule.findMany({
+      orderBy: { updatedAt: 'desc' }
+    });
+  }
   res.render('schedules', { schedules });
 })
 
@@ -43,11 +52,11 @@ router.post('/', ensurer, async function (req, res, next) {
     }
   });
 
-  await createCanName(req.body.candidate, schedule.scheduleId);
+  await createCanName(req.body.candidates, schedule.scheduleId);
   res.redirect('/schedules/' + schedule.scheduleId);
 })
 
-router.get('/:scheduleId', ensurer, async (req, res, next) => {
+router.get('/:scheduleId', async (req, res, next) => {
   /**
    * 予定のデータ
    * @type {{
@@ -117,12 +126,13 @@ router.get('/:scheduleId', ensurer, async (req, res, next) => {
      * @type {Object.<string, {isSelf: boolean, userId: string, username: string}>}
      */
     const userMap = new Map();
-    userMap.set(req.user, {
-      isSelf: true,
-      userId: req.user,
-      username: req.user
-    });
-
+    if (req.user) {
+      userMap.set(req.user, {
+        isSelf: true,
+        userId: req.user,
+        username: req.user
+      });
+    }
     availabilities.forEach(a => {
       userMap.set(a.user.userId, {
         isSelf: req.user === a.user.userId, // 地震であるかどうかを示す真偽値
@@ -130,6 +140,9 @@ router.get('/:scheduleId', ensurer, async (req, res, next) => {
         username: a.user.username
       });
     });
+    if (userMap.size === 0) { // そうだった、sizeがあったわ
+      userMap.set('', {isSelf: false, userId: 'まだ出欠はありません', username: 'まだ出欠はありません'});
+    }
 
     // 全ユーザ、全候補で二重ループしてそれぞれの出欠の値がない場合には、「欠席」を設定する
     /**
@@ -165,7 +178,6 @@ router.get('/:scheduleId', ensurer, async (req, res, next) => {
     // どうやらコメントは一人一つらしい
 
     res.render('schedule', {
-      user: req.user,
       schedule: schedule,
       candidates: candidates,
       users: users,
@@ -218,8 +230,34 @@ router.get('/:scheduleId/edit', async function (req, res, next) {
   }
 })
 
-router.post('/:scheduleId/update', function (req,res,next) {
-  res.send(req.body);
+router.post('/:scheduleId/update', async function (req,res,next) {
+  const schedule = await prisma.schedule.findUnique({
+    where: {scheduleId: req.params.scheduleId}
+  });
+  if ((req.user || 'admin') === schedule.createdBy) {
+    const updatedAt = new Date();
+    await prisma.schedule.update({
+      where: {scheduleId: schedule.scheduleId},
+      data: {
+        scheduleName: req.body.scheduleName.slice(0,255) || '名称未設定',
+        memo: req.body.memo,
+        updatedAt: updatedAt
+      }
+    })
+    createCanName(req.body.candidates, req.params.scheduleId); // 候補の追加
+    res.redirect(`/schedules/${req.params.scheduleId}`);
+  } else {
+    const err = new Error('指定された予定が見つからないか、予定の編集権限がありません');
+    err.status = 404;
+    next(err);
+  }
+})
+
+router.post('/:scheduleId/delete', async function (req, res, next) {
+  const schedule = await prisma.schedule.findUnique({
+    where: { scheduleId: req.params.scheduleId }
+  });
+  res.send('ここは削除ページ。');
 })
 
 /**
@@ -229,12 +267,18 @@ router.post('/:scheduleId/update', function (req,res,next) {
  * @returns {{candidateName: candidate, scheduleId: scheduleId}[]}
  */
 async function createCanName(candidateString, scheduleId) {
-  const Names = candidates.split('\n').map(s => s.trim()).filter(s => s !== '');
+  if (!candidateString || !scheduleId) {
+    console.log('引数が空またはundefinedです');
+    return;
+  }
+  const Names = candidateString.split('\n').map(s => s.trim()).filter(s => s !== '');
   const candidates =  Names.map((c) => ({
     candidateName: c,
     scheduleId: scheduleId
   }));
   await prisma.candidate.createMany({ data: candidates }); // 更新
+  // SQLはテーブル名または列名が大文字の場合は""で囲む必要がある。
+  // その場合、WHERE文の値は''で囲む必要がある。
 }
 
 module.exports = router;

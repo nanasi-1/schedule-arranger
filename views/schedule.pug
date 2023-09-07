@@ -37,3 +37,5 @@ block content
                         )#comment-btn 編集
                     else 
                         p #{commentMap.get(user.userId)}
+    if schedule.user.userId === user
+        a(href=`/schedules/${schedule.scheduleId}/edit`).btn 編集 

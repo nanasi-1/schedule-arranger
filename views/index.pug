@@ -3,9 +3,15 @@ extends layout
 block content
     h1= title
     p #{title}へようこそ！<br>
+    hr
+    h3 予定一覧
+    p この予定調整くんは、アカウントを作らなくても<br>予定の閲覧が行えます。
+    a.btn(href="schedules") 予定一覧へ
+    hr
+    h3 アカウント
+    p アカウントにログインすると、予定の作成や出欠の編集が行えます。<br>また、アカウントを作成するには申請が必要です。
     if user 
-        a.btn(href="schedules") 予定一覧へ
         <br>
         a.btn(href="logout") #{user}からログアウト 
     else
-        a(href="login") ログイン 
+        a(href="login").btn ログイン 
