@@ -1,10 +1,15 @@
 extend layout 
 
 block content 
-    h3 #{schedule.scheduleName}
+    h2 #{schedule.scheduleName}
     p 作成者: 
         a(href="/schedules") #{schedule.user.username}
     p(style="white-space:pre;") #{schedule.memo}
+    if !user
+        hr
+        p 出欠を編集するにはログインしてください
+        a.btn(href="/login") ログイン 
+        hr
     h3 出欠表
     table
         tr

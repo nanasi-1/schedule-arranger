@@ -34,7 +34,7 @@ router.get('/', async function (req, res) {
       orderBy: { updatedAt: 'desc' }
     });
   }
-  res.render('schedules', { schedules });
+  res.render('schedules', { schedules: schedules, user: req.user });
 })
 
 router.post('/', ensurer, async function (req, res, next) {
@@ -182,7 +182,8 @@ router.get('/:scheduleId', async (req, res, next) => {
       candidates: candidates,
       users: users,
       availabilityMapMap: availabilityMapMap,
-      commentMap: commentMap
+      commentMap: commentMap,
+      user: req.user
     });
 
   } else {
@@ -192,7 +193,7 @@ router.get('/:scheduleId', async (req, res, next) => {
   }
 })
 
-router.get('/:scheduleId/edit', async function (req, res, next) {
+router.get('/:scheduleId/edit', ensurer, async function (req, res, next) {
 
   /**
    * 予定のデータ
@@ -208,7 +209,7 @@ router.get('/:scheduleId/edit', async function (req, res, next) {
     where: { scheduleId: req.params.scheduleId }
   });
 
-  if ((req.user || 'admin') === schedule.createdBy) { // 作成者のみが編集ページを開ける
+  if (isMine(req, schedule)) { // 作成者のみが編集ページを開ける
     /**
      * 候補一覧
      * @type {{ candidateId: number, candidateName: string, scheduleId: uuidv4 }[]}
@@ -230,11 +231,11 @@ router.get('/:scheduleId/edit', async function (req, res, next) {
   }
 })
 
-router.post('/:scheduleId/update', async function (req,res,next) {
+router.post('/:scheduleId/update', ensurer, async function (req,res,next) {
   const schedule = await prisma.schedule.findUnique({
     where: {scheduleId: req.params.scheduleId}
   });
-  if ((req.user || 'admin') === schedule.createdBy) {
+  if (isMine(req, schedule)) {
     const updatedAt = new Date();
     await prisma.schedule.update({
       where: {scheduleId: schedule.scheduleId},
@@ -253,11 +254,19 @@ router.post('/:scheduleId/update', async function (req,res,next) {
   }
 })
 
-router.post('/:scheduleId/delete', async function (req, res, next) {
+router.post('/:scheduleId/delete', ensurer, async function (req, res, next) {
   const schedule = await prisma.schedule.findUnique({
     where: { scheduleId: req.params.scheduleId }
   });
-  res.send('ここは削除ページ。');
+  if (isMine(req, schedule)) {
+    // req.bodyは空
+    await deleteSchedule(schedule.scheduleId);
+    res.redirect('/schedules')
+  } else {
+    const err = new Error('指定された予定がない、または、削除する権限がありません');
+    err.status = 404;
+    next(err);
+  }
 })
 
 /**
@@ -280,5 +289,28 @@ async function createCanName(candidateString, scheduleId) {
   // SQLはテーブル名または列名が大文字の場合は""で囲む必要がある。
   // その場合、WHERE文の値は''で囲む必要がある。
 }
+
+/**
+ * 予定の作成者が自分かどうか判定する関数
+ * @param {Request} req 
+ * @param {Schedule} schedule 
+ * @returns {boolean}
+ */
+function isMine(req, schedule) {
+  return req.user === schedule.createdBy;
+}
+
+/**
+ * 予定をデータベースから削除する関数
+ * @param {ScheduleId} scheduleId 
+ */
+async function deleteSchedule(scheduleId) {
+  await prisma.availability.deleteMany({ where: { scheduleId } });
+  await prisma.candidate.deleteMany({ where: { scheduleId } });
+  await prisma.comment.deleteMany({ where: { scheduleId } });
+  await prisma.schedule.delete({ where: { scheduleId } });
+}
+
+router.deleteSchedule = deleteSchedule; // 公開関数にするらしい
 
 module.exports = router;

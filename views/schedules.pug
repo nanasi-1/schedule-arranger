@@ -3,7 +3,11 @@ extends layout
 block content
     h3 あなたが作った予定一覧
     p ここから予定一覧を確認できます。
-    a.btn(href="/schedules/new") 予定を作る
+    if user
+        a.btn(href="/schedules/new") 予定を作る
+    else 
+        a.btn(href="/login") ログイン 
+        p 予定を作成するにはログインしてください
     hr(style="border:none")
     table(cellspacing="5px") 
         tr 
@@ -16,3 +20,6 @@ block content
                     a(href=`/schedules/${schedule.scheduleId}`) #{schedule.scheduleName}
                 td #{schedule.memo}
                 td #{schedule.updatedAt}
+    hr(style="border: none")
+    p
+        a(href="/") トップへ戻る
