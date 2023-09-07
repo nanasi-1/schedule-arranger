@@ -3,14 +3,14 @@ const router = express.Router();
 const ensurer = require('./authentication-ensurer');
 const { v4: uuidv4 } = require('uuid');
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient({ log: [ 'query' ] });
+const prisma = new PrismaClient({ log: ['query'] });
 
 /* GET schedules listing. */
-router.get('/new', ensurer, function(req, res, next) {
-  res.render('new', {user: req.user});
+router.get('/new', ensurer, function (req, res, next) {
+  res.render('new', { user: req.user });
 });
 
-router.get('/', ensurer, async function (req,res) {
+router.get('/', async function (req, res) {
   /**
    * 予定のデータ
    * @type {{
@@ -22,38 +22,32 @@ router.get('/', ensurer, async function (req,res) {
    * }}
    */
   const schedules = await prisma.schedule.findMany({
-    where: {createdBy: req.user}, // NOTE 一応置き換えしやすいようにした
+    where: { createdBy: req.user || '*' }, // NOTE 一応置き換えしやすいようにした
     orderBy: { updatedAt: 'desc' }
   });
-  res.render('schedules', {schedules});
+  res.render('schedules', { schedules });
 })
 
-router.post('/', ensurer , async function (req, res, next) {
+router.post('/', ensurer, async function (req, res, next) {
   console.log(req.body);
-  
+
   const scheduleId = uuidv4();
   const updateAt = new Date();
   const schedule = await prisma.schedule.create({
     data: {
       scheduleId: scheduleId,
-      scheduleName: req.body.scheduleName.slice(0,255) || '名称未設定', // 文字数制限
+      scheduleName: req.body.scheduleName.slice(0, 255) || '名称未設定', // 文字数制限
       memo: req.body.memo,
       createdBy: req.user,
       updatedAt: updateAt
     }
   });
 
-  const candidateNames = req.body.candidates.split('\n').map((s) => s.trim()).filter((s) => s !== '');
-  const candidates = candidateNames.map((c) => ({
-    candidateName: c,
-    scheduleId: schedule.scheduleId
-  }));
-  await prisma.candidate.createMany({data: candidates})
-
-  res.redirect('/schedules/' + schedule.scheduleId); 
+  await createCanName(req.body.candidate, schedule.scheduleId);
+  res.redirect('/schedules/' + schedule.scheduleId);
 })
 
-router.get('/:scheduleId', ensurer, async (req,res,next) => {
+router.get('/:scheduleId', ensurer, async (req, res, next) => {
   /**
    * 予定のデータ
    * @type {{
@@ -66,7 +60,7 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
    * }}
    */
   const schedule = await prisma.schedule.findUnique({
-    where: {scheduleId: req.params.scheduleId},
+    where: { scheduleId: req.params.scheduleId },
     include: {
       user: {
         select: {
@@ -87,14 +81,14 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
       where: { scheduleId: schedule.scheduleId },
       orderBy: { candidateId: 'asc' }
     });
-    
+
     /**
      * 出欠のデータ
      * @type {Array<{user: {userId: string, username: string}}> | undefined}
      */
     const availabilities = await prisma.availability.findMany({
       where: { scheduleId: schedule.scheduleId },
-      orderBy: {candidateId: 'asc'},
+      orderBy: { candidateId: 'asc' },
       include: {
         user: {
           select: {
@@ -104,7 +98,7 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
         }
       }
     })
-    
+
     /**
      * 出欠MapMap
      * key: userId, value: Map(key: candidateId, value: availability)
@@ -116,7 +110,7 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
       map.set(ava.candidateId, ava.availability);
       availabilityMapMap.set(ava.user.userId, map)
     });
-    
+
     /**
      * ユーザ情報のマップ
      * key: userId, value: User
@@ -157,7 +151,7 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
      * @type {{comment: string, scheduleId: uuidv4, userId: string}[]}
      */
     const comments = await prisma.comment.findMany({
-      where: {scheduleId: schedule.scheduleId}
+      where: { scheduleId: schedule.scheduleId }
     })
     /**
      * コメントが入った連想配列
@@ -179,20 +173,68 @@ router.get('/:scheduleId', ensurer, async (req,res,next) => {
       commentMap: commentMap
     });
 
-    console.log(userMap);
-    console.log(users);
-    console.log(schedule);
-    console.log(candidates);
-    console.log(availabilities);
-    console.log(availabilityMapMap);
-    console.log(commentMap);
-    console.log(comments);
-
   } else {
     const err = new Error('指定された予定は見つかりません');
     err.status = 404;
     next(err);
   }
 })
+
+router.get('/:scheduleId/edit', async function (req, res, next) {
+
+  /**
+   * 予定のデータ
+   * @type {{
+   *  scheduleId: uuidv4, 
+   *  scheduleName: string,
+   *  memo: string,
+   *  createdBy: string,
+   *  updatedAt: data
+   * }}
+   */
+  const schedule = await prisma.schedule.findUnique({
+    where: { scheduleId: req.params.scheduleId }
+  });
+
+  if ((req.user || 'admin') === schedule.createdBy) { // 作成者のみが編集ページを開ける
+    /**
+     * 候補一覧
+     * @type {{ candidateId: number, candidateName: string, scheduleId: uuidv4 }[]}
+     */
+    const candidates = await prisma.candidate.findMany({
+      where: { scheduleId: schedule.scheduleId },
+      orderBy: {candidateId: 'asc'}
+    })
+
+    res.render('edit', {
+      user: req.user,
+      schedule: schedule,
+      candidates: candidates
+    })
+  } else {
+    const err = new Error('指定された予定が見つからないか、予定の編集権限がありません');
+    err.status = 404;
+    next(err);
+  }
+})
+
+router.post('/:scheduleId/update', function (req,res,next) {
+  res.send(req.body);
+})
+
+/**
+ * 候補の文字列から候補のデータベースを更新する関数
+ * @param {req.body.candidates} candidateString 
+ * @param {schedule.scheduleId} scheduleId
+ * @returns {{candidateName: candidate, scheduleId: scheduleId}[]}
+ */
+async function createCanName(candidateString, scheduleId) {
+  const Names = candidates.split('\n').map(s => s.trim()).filter(s => s !== '');
+  const candidates =  Names.map((c) => ({
+    candidateName: c,
+    scheduleId: scheduleId
+  }));
+  await prisma.candidate.createMany({ data: candidates }); // 更新
+}
 
 module.exports = router;

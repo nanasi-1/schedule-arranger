@@ -21,13 +21,23 @@ router.post('/:scheduleId/comments', ensurer, async function (req, res, next) {
       update: data,
       create: data
     });
-    const db = await prisma.comment.findMany();
     res.json({ status: 'OK', comment: data.comment });
   } catch (err) {
-    console.warn(err);
-    res.status(404).json({status: 'ERROR', statusCode: 404, ERROR: err});
+    //res.status(404).json({status: 'ERROR', statusCode: 404, ERROR: err});
+    err.status = 404;
+    next(err);
   }
-
 });
+
+router.get('/:scheduleId/comments', async function (req, res, next) {
+  try {
+    const db = await prisma.comment.findMany({
+      where: {scheduleId: req.params.scheduleId}
+    });
+    res.json({ status: 'OK', comment: db });
+  } catch (err) {
+    res.status(404).json({status: 'ERROR', statusCode: 404, ERROR: 'お探しの予定は見つかりませんでした'});
+  }
+})
 
 module.exports = router;
