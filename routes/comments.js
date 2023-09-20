@@ -13,8 +13,15 @@ const prisma = new PrismaClient({ log: ['query'] });
 /* GET comments listing. */
 router.post('/:scheduleId/comments', ensurer, async function (req, res, next) {
 
-  await body('comments').isString().withMessage('文字列で入力してください。').run(req);
-  await param('scheduleId').isUUID(4).withMessage('有効な予定IDを指定してください。').run(req);
+  await body('comment').isString().withMessage('文字列で入力してください').run(req);
+  await param('scheduleId').isUUID(4).withMessage('有効な予定IDを指定してください').run(req);
+  const errors = validationResult(req);
+
+  console.log(req.body, req.params.scheduleId);
+  console.log(errors.array());
+  if(!errors.isEmpty()) {
+    return res.status(400).json({ status: 'NG', errors: errors.array() });
+  }
   // NOTE これ別にtry-catchなくてもデータベースエラーは平気じゃないかな...
 
   try {
