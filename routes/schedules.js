@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { param, body, validationResult } = require('express-validator'); // バリデーション
 const ensurer = require('./authentication-ensurer');
 const { v4: uuidv4 } = require('uuid');
 const { PrismaClient } = require('@prisma/client');
@@ -49,6 +50,14 @@ router.get('/', async function (req, res) {
 })
 
 router.post('/', ensurer, async function (req, res, next) {
+  await body('scheduleName').isString().run(req);
+  await body('candidates').isString().run(req);
+  await body('memo').isString().run(req);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(val('パラメータが間違っています'));
+  }
+
   console.log(req.body);
 
   const scheduleId = uuidv4();
@@ -68,6 +77,14 @@ router.post('/', ensurer, async function (req, res, next) {
 })
 
 router.get('/:scheduleId', async (req, res, next) => {
+
+  // バリデーション
+  await param('scheduleId').isUUID(4).run(req);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(val('予定IDが間違っています'));
+  }
+
   /**
    * 予定のデータ
    * @type {{
@@ -198,13 +215,18 @@ router.get('/:scheduleId', async (req, res, next) => {
     });
 
   } else {
-    const err = new Error('指定された予定は見つかりません');
-    err.status = 404;
-    next(err);
+    next(val('指定された予定は見つかりません'));
   }
 })
 
 router.get('/:scheduleId/edit', ensurer, async function (req, res, next) {
+
+  // バリデーション
+  await param('scheduleId').isUUID(4).run(req);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(val('予定IDが間違っています'));
+  }
 
   /**
    * 予定のデータ
@@ -236,13 +258,19 @@ router.get('/:scheduleId/edit', ensurer, async function (req, res, next) {
       candidates: candidates
     })
   } else {
-    const err = new Error('指定された予定が見つからないか、予定の編集権限がありません');
-    err.status = 404;
-    next(err);
+    next(val('指定された予定が見つからないか、予定の編集権限がありません'));
   }
 })
 
 router.post('/:scheduleId/update', ensurer, async function (req,res,next) {
+
+  // バリデーション
+  await param('scheduleId').isUUID(4).run(req);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(val('予定IDが間違っています'));
+  }
+
   const schedule = await prisma.schedule.findUnique({
     where: {scheduleId: req.params.scheduleId}
   });
@@ -259,13 +287,19 @@ router.post('/:scheduleId/update', ensurer, async function (req,res,next) {
     createCanName(req.body.candidates, req.params.scheduleId); // 候補の追加
     res.redirect(`/schedules/${req.params.scheduleId}`);
   } else {
-    const err = new Error('指定された予定が見つからないか、予定の編集権限がありません');
-    err.status = 404;
-    next(err);
+    next(val('予定の編集権限がありません'));
   }
 })
 
 router.post('/:scheduleId/delete', ensurer, async function (req, res, next) {
+
+  // バリデーション
+  await param('scheduleId').isUUID(4).run(req);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(val('予定IDが間違っています'));
+  }
+
   const schedule = await prisma.schedule.findUnique({
     where: { scheduleId: req.params.scheduleId }
   });
@@ -274,9 +308,7 @@ router.post('/:scheduleId/delete', ensurer, async function (req, res, next) {
     await deleteSchedule(schedule.scheduleId);
     res.redirect('/schedules')
   } else {
-    const err = new Error('指定された予定がない、または、削除する権限がありません');
-    err.status = 404;
-    next(err);
+    next(val('指定された予定がない、または、削除する権限がありません'));
   }
 })
 
@@ -288,7 +320,7 @@ router.post('/:scheduleId/delete', ensurer, async function (req, res, next) {
  */
 async function createCanName(candidateString, scheduleId) {
   if (!candidateString || !scheduleId) {
-    console.log('引数が空またはundefinedです');
+    console.log('createCanName: 引数が空またはundefinedです');
     return;
   }
   const Names = candidateString.split('\n').map(s => s.trim()).filter(s => s !== '');
@@ -308,7 +340,9 @@ async function createCanName(candidateString, scheduleId) {
  * @returns {boolean}
  */
 function isMine(req, schedule) {
-  return req.user === schedule.createdBy;
+  if(schedule) {
+    return req.user === schedule.createdBy;
+  }
 }
 
 /**
@@ -322,6 +356,18 @@ async function deleteSchedule(scheduleId) {
   await prisma.schedule.delete({ where: { scheduleId } });
 }
 
+/**
+ * エラー作成関数
+ * @param {Errors} errors 
+ * @param {number} status
+ */
+function val(errors = '変なリクエスト送るな', status = 404) {
+  const err = new Error(errors);
+  err.status = status;
+  return err;
+}
+
 router.deleteSchedule = deleteSchedule; // 公開関数にするらしい
+router.val = val;
 
 module.exports = router;
