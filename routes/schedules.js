@@ -16,10 +16,8 @@ dayjs.tz.setDefault('Asia/Tokyo');
 
 /* GET schedules listing. */
 router.get('/new', ensurer, function (req, res, next) {
-  res.render('new', { user: req.user });
+  res.render('new', { user: req.user, csrfToken: req.csrfToken()});
 });
-
-// ToDo サーバーが止まらないようにする
 
 router.get('/', async function (req, res) {
   /**
@@ -33,20 +31,28 @@ router.get('/', async function (req, res) {
    * }}
    */
   let schedules;
+  schedules = await prisma.schedule.findMany({
+    orderBy: { updatedAt: 'desc' }
+  });
+  schedules.forEach((schedule) => {
+    schedule.formattedUpdatedAt = dayjs(schedule.updatedAt).tz().format('YYYY/MM/DD HH:mm');
+  });
+  res.render('schedules', { schedules: schedules, user: req.user, mime: false });
+})
+router.get('/mine', async function (req, res) {
+  let schedules;
   if (req.user) {
     schedules = await prisma.schedule.findMany({
       where: { createdBy: req.user },
       orderBy: { updatedAt: 'desc' }
     });
   } else {
-    schedules = await prisma.schedule.findMany({
-      orderBy: { updatedAt: 'desc' }
-    });
+    return res.redirect('/schedules');
   }
   schedules.forEach((schedule) => {
     schedule.formattedUpdatedAt = dayjs(schedule.updatedAt).tz().format('YYYY/MM/DD HH:mm');
   });
-  res.render('schedules', { schedules: schedules, user: req.user });
+  res.render('schedules', { schedules: schedules, user: req.user, mine: true });
 })
 
 router.post('/', ensurer, async function (req, res, next) {
@@ -255,7 +261,8 @@ router.get('/:scheduleId/edit', ensurer, async function (req, res, next) {
     res.render('edit', {
       user: req.user,
       schedule: schedule,
-      candidates: candidates
+      candidates: candidates,
+      csrfToken: req.csrfToken()
     })
   } else {
     next(val('指定された予定が見つからないか、予定の編集権限がありません'));

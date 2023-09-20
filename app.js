@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const csurf = require('tiny-csrf');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient({ log: ['query'] })
 
@@ -31,8 +32,17 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('nyobiko_signed_cookies'));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// csrf対策
+app.use(
+  csurf(
+    'nyobikosecretsecret9876543212345',
+    ['POST'],
+    [/.*\/(candidates|comments|login\/auth).*/i] 
+  )
+);
 
 // express-session
 app.use(session ({

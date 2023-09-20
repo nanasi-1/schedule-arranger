@@ -4,11 +4,13 @@ block content
     p ここで予定を編集できます
     hr
     form(action=`/schedules/${schedule.scheduleId}/delete`, method="post") 
+        input(type="hidden" name="_csrf" value!=csrfToken)
         h3.my-3 予定の削除
         p この変更は取り消しができません。
         button(type="submit").btn.btn-danger 予定を削除する
     hr
     form(action=`/schedules/${schedule.scheduleId}/update`, method="post") 
+        input(type="hidden" name="_csrf" value!=csrfToken)
         div.mb-4
             h6.mb-3 予定名
             input.form-control(type="text" name="scheduleName" value=schedule.scheduleName)
