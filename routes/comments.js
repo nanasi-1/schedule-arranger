@@ -2,14 +2,21 @@
 
 const express = require('express');
 const router = express.Router();
+const { param, body, validationResult } = require('express-validator');
 const ensurer = require('./authentication-ensurer');
 const { PrismaClient } = require('@prisma/client');
+const { val } = require('./schedules');
 const prisma = new PrismaClient({ log: ['query'] });
 
 // コメントを追加するWebAPIになるらしい
 
 /* GET comments listing. */
 router.post('/:scheduleId/comments', ensurer, async function (req, res, next) {
+
+  await body('comments').isString().withMessage('文字列で入力してください。').run(req);
+  await param('scheduleId').isUUID(4).withMessage('有効な予定IDを指定してください。').run(req);
+  // NOTE これ別にtry-catchなくてもデータベースエラーは平気じゃないかな...
+
   try {
     const data = {
       userId: req.user,
@@ -23,9 +30,7 @@ router.post('/:scheduleId/comments', ensurer, async function (req, res, next) {
     });
     res.json({ status: 'OK', comment: data.comment });
   } catch (err) {
-    //res.status(404).json({status: 'ERROR', statusCode: 404, ERROR: err});
-    err.status = 404;
-    next(err);
+    next(val(err));
   }
 });
 
@@ -36,7 +41,7 @@ router.get('/:scheduleId/comments', async function (req, res, next) {
     });
     res.json({ status: 'OK', comment: db });
   } catch (err) {
-    res.status(404).json({status: 'ERROR', statusCode: 404, ERROR: 'お探しの予定は見つかりませんでした'});
+    next(val('お探しの予定は見つかりませんでした'));
   }
 })
 
