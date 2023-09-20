@@ -6,6 +6,4 @@ router.get('/', function(req, res, next) {
   res.render('login', {user: req.user});
 });
 
-// [ ] ログインのコードを移動
-
 module.exports = router;
